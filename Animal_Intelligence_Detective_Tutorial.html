@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animal Intelligence Detective: 6th Grade ELA Tutorial</title>
+<style>
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { margin: 0; padding: 20px; background: #f0f4f8; color: #1e293b; display: flex; justify-content: center; }
+  .app-container { max-width: 820px; width: 100%; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; }
+  .header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #fff; padding: 24px 30px; }
+  .header h1 { margin: 0 0 6px 0; font-size: 1.65rem; }
+  .header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; margin-top: 16px; overflow: hidden; }
+  .progress-bar { background: #34d399; height: 100%; width: 0%; transition: width 0.4s ease; }
+  .status-strip { display: flex; justify-content: space-between; align-items: center; background: #eff6ff; padding: 10px 30px; border-bottom: 1px solid #dbeafe; font-size: 0.9rem; font-weight: 600; color: #1e40af; }
+  .content { padding: 30px; }
+  .badge { display: inline-block; background: #dbeafe; color: #1d4ed8; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; }
+  h2 { margin: 0 0 14px 0; color: #0f172a; font-size: 1.35rem; }
+  .lesson-box { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 16px 20px; border-radius: 0 10px 10px 0; margin-bottom: 22px; line-height: 1.6; }
+  .sim-box { background: #fefce8; border: 2px dashed #eab308; border-radius: 12px; padding: 18px; margin-bottom: 22px; text-align: center; }
+  .sim-btn { background: #eab308; color: #0f172a; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; margin: 6px; transition: transform 0.1s; }
+  .sim-btn:hover { transform: scale(1.03); }
+  .question-text { font-weight: 700; font-size: 1.08rem; margin-bottom: 14px; color: #1e293b; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { text-align: left; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 10px; padding: 14px 18px; font-size: 1rem; cursor: pointer; transition: all 0.2s; color: #1e293b; }
+  .option-btn:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .option-btn.correct { border-color: #10b981; background: #ecfdf5; color: #065f46; font-weight: 600; }
+  .option-btn.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  .feedback { margin-top: 18px; padding: 14px 18px; border-radius: 10px; display: none; line-height: 1.5; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; }
+  .feedback.no { background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; }
+  .nav-footer { margin-top: 24px; display: flex; justify-content: flex-end; }
+  .next-btn { background: #2563eb; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; display: none; }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { background: #1d4ed8; }
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .vocab-card { background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 10px; padding: 14px; cursor: pointer; text-align: center; transition: 0.2s; }
+  .vocab-card:hover { border-color: #2563eb; background: #eff6ff; }
+  .vocab-card strong { display: block; color: #1e3a8a; font-size: 1.05rem; margin-bottom: 6px; }
+  .vocab-card span { font-size: 0.88rem; color: #475569; }
+  .cert-box { text-align: center; padding: 20px; border: 4px double #2563eb; border-radius: 14px; background: #f8fafc; }
+  .cert-box h2 { color: #1e3a8a; font-size: 1.8rem; }
+  .name-input { padding: 10px 14px; font-size: 1rem; border: 2px solid #94a3b8; border-radius: 8px; margin: 12px 0; width: 260px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h1>Animal Intelligence Detective</h1>
+    <p>6th Grade Florida B.E.S.T. ELA Interactive Tutorial • "How Smart Are Animals?"</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <div class="status-strip">
+    <span id="stageLabel">Case 1 of 5: Welcome</span>
+    <span id="scoreLabel">Detective Points: 0 / 400</span>
+  </div>
+
+  <div class="content" id="mainContent"></div>
+</div>
+
+<script>
+let currentStep = 0;
+let score = 0;
+let answeredCurrent = false;
+
+const steps = [
+  {
+    label: "Intro: Detective Briefing",
+    render: () => `
+      <span class="badge">6th Grade Florida B.E.S.T. ELA</span>
+      <h2>Welcome, Animal Intelligence Detective!</h2>
+      <div class="lesson-box">
+        In Dorothy Hinshaw Patent's science article <strong>"How Smart Are Animals?"</strong>, scientists investigate a tricky mystery: <em>How can we tell if an animal is truly thinking, or just acting on instinct?</em><br><br>
+        Complete <strong>4 Skill Cases</strong> aligned to Florida B.E.S.T. benchmarks to earn your Detective Certificate:
+        <ul>
+          <li><strong>ELA.6.R.2.1 (Text Structure):</strong> How sections build meaning</li>
+          <li><strong>ELA.6.R.2.4 (Tracking an Argument):</strong> Testing Clever Hans</li>
+          <li><strong>ELA.6.R.2.2 (Central Idea):</strong> Comparing animal species</li>
+          <li><strong>ELA.6.V.1.3 (Vocabulary in Context):</strong> Decoding science terms</li>
+        </ul>
+      </div>
+      <div class="nav-footer">
+        <button class="next-btn show" onclick="nextStep()">Start Case 1 &rarr;</button>
+      </div>
+    `
+  },
+  {
+    label: "Case 1 of 4: Text Structure (ELA.6.R.2.1)",
+    badge: "ELA.6.R.2.1 • Text Structure",
+    title: "Why Start With a Blizzard Rescue?",
+    lesson: `Authors organize informational texts intentionally. Dorothy Hinshaw Patent opens <em>"How Smart Are Animals?"</em> with a dramatic story: during a fierce blizzard, a one-year-old Newfoundland dog named <strong>Villa</strong> leaps a five-foot fence, packs down snow around 11-year-old Andrea Anderson, and helps pull her out of a deep snowdrift.`,
+    question: "How does this opening anecdote contribute to the structure and meaning of the rest of the article?",
+    options: [
+      { text: "It proves that Newfoundland dogs are smarter than every other animal species.", correct: false, why: "Not quite! Scientists actually debate whether Villa acted out of intelligence or inherited wolf instinct." },
+      { text: "It hooks the reader with a real-life rescue that introduces the central debate between conscious intelligence and inherited instinct.", correct: true, why: "Spot on! The dramatic rescue grabs the reader's attention and leads directly into the scientific question of whether Villa thought through the problem or acted on instinct." },
+      { text: "It gives step-by-step safety instructions for surviving a winter blizzard.", correct: false, why: "Look closer at the author's purpose: the story is about analyzing Villa's behavior, not teaching blizzard survival." }
+    ]
+  },
+  {
+    label: "Case 2 of 4: Tracking an Argument (ELA.6.R.2.4)",
+    badge: "ELA.6.R.2.4 • Tracking an Argument",
+    title: "Investigating Clever Hans the 'Math' Horse",
+    lesson: `In the early 1900s, a horse named <strong>Clever Hans</strong> seemed to solve math problems by tapping his hoof. Psychologist <strong>Oskar Pfungst</strong> designed controlled experiments to test this claim. Try running Pfungst's experiment below before answering!`,
+    extraHTML: `
+      <div class="sim-box">
+        <strong>Mini-Lab: Run Oskar Pfungst's Experiment</strong><br>
+        <span style="font-size:0.9rem;">Click a test condition to see how Hans performs on "3 + 4 = ?":</span><br>
+        <button class="sim-btn" onclick="runHans(true)">Test A: Questioner KNOWS the answer (7)</button>
+        <button class="sim-btn" onclick="runHans(false)">Test B: Questioner DOES NOT KNOW the answer</button>
+        <div id="hansResult" style="margin-top:10px; font-weight:700; color:#1e3a8a;"></div>
+      </div>
+    `,
+    question: "What reasoning and evidence did Oskar Pfungst use to prove Clever Hans could NOT actually do math?",
+    options: [
+      { text: "He showed that horses have smaller brain-to-body ratios than dolphins.", correct: false, why: "Brain-to-body ratio was discussed earlier in the text, not as Pfungst's proof about Hans." },
+      { text: "He tested Hans when no one in the room knew the answer; when Hans failed, it proved he was reading unconscious human body language instead of calculating.", correct: true, why: "Exact match! By removing human body-language cues, Pfungst proved Hans relied on subtle posture changes rather than arithmetic." },
+      { text: "He proved Hans's trainer was secretly whispering the answers out loud.", correct: false, why: "No whispering was involved—Hans was watching tiny, unconscious movements like a person leaning forward and relaxing." }
+    ]
+  },
+  {
+    label: "Case 3 of 4: Central Idea (ELA.6.R.2.2)",
+    badge: "ELA.6.R.2.2 • Central Idea & Details",
+    title: "Why Can't Scientists Rank Animal Species?",
+    lesson: `In Part 2, Patent explains that even though scientists observe traits like <strong>tool use, long-term memory, and problem-solving</strong>, comparing the intelligence of different species (like rats vs. pigeons) is nearly impossible. Each species evolved specialized skills for its own environment, wild animals get scared in labs, and individual animals vary widely.`,
+    question: "Which statement best expresses the central idea of Part 2?",
+    options: [
+      { text: "Laboratory rats are scientifically proven to be smarter than wild pigeons and monkeys.", correct: false, why: "The text says comparing rats and pigeons is virtually impossible because they learn under different conditions." },
+      { text: "Ranking different species by intelligence is nearly impossible, but studying how animals solve problems reveals how their minds work in nature.", correct: true, why: "Great job! That captures both the challenge of cross-species comparison and the real value of animal cognition research." },
+      { text: "Wild animals should never be studied because they cannot learn any new tasks.", correct: false, why: "Wild animals can learn, they simply perform poorly in strange lab settings due to fear." }
+    ]
+  },
+  {
+    label: "Case 4 of 4: Vocabulary in Context (ELA.6.V.1.3)",
+    badge: "ELA.6.V.1.3 • Vocabulary in Context",
+    title: "Decode the Science Vocabulary",
+    lesson: `Click each science term from the text to review its meaning before solving the final context-clue challenge:`,
+    extraHTML: `
+      <div class="vocab-grid">
+        <div class="vocab-card" onclick="this.querySelector('span').innerText='Done automatically without conscious thought (inherited)'">
+          <strong>Instinctive</strong><span>Click to reveal</span>
+        </div>
+        <div class="vocab-card" onclick="this.querySelector('span').innerText='An observable fact, event, or occurrence'">
+          <strong>Phenomenon</strong><span>Click to reveal</span>
+        </div>
+        <div class="vocab-card" onclick="this.querySelector('span').innerText='A natural ability or skill for something'">
+          <strong>Aptitude</strong><span>Click to reveal</span>
+        </div>
+        <div class="vocab-card" onclick="this.querySelector('span').innerText='How objects are positioned in space relative to each other'">
+          <strong>Spatial Relations</strong><span>Click to reveal</span>
+        </div>
+      </div>
+    `,
+    question: `Read the excerpt: "Scientists list measurable factors of intelligence, including problem-solving capacity, counting aptitude, and understanding of spatial relations." Based on context, what does "aptitude" mean?`,
+    options: [
+      { text: "A fear of unfamiliar laboratory cages", correct: false, why: "Check the surrounding words: 'problem-solving capacity' and 'understanding' point to a skill or ability." },
+      { text: "A natural ability or skill", correct: true, why: "Correct! 'Counting aptitude' refers to a natural ability or talent for recognizing numbers and quantities." },
+      { text: "An inherited wolf behavior", correct: false, why: "That describes 'instinct,' whereas 'aptitude' refers to a natural ability or skill." }
+    ]
+  },
+  {
+    label: "Case Closed: Detective Certificate",
+    render: () => `
+      <div class="cert-box">
+        <span class="badge">MISSION ACCOMPLISHED</span>
+        <h2>Certified Animal Intelligence Detective</h2>
+        <p>You completed all 4 Florida B.E.S.T. 6th Grade ELA Skill Cases for <em>"How Smart Are Animals?"</em></p>
+        <p style="font-size:1.3rem; font-weight:800; color:#059669;">Final Score: ${score} / 400 Points</p>
+        <div>
+          <label for="studentName"><strong>Enter Your Name for Your Certificate:</strong></label><br>
+          <input type="text" id="studentName" class="name-input" placeholder="Type your name here..." oninput="document.getElementById('certNameDisplay').innerText = this.value || '6th Grade Detective'">
+        </div>
+        <p style="margin-top:14px; font-size:1.1rem;">Awarded to: <strong id="certNameDisplay" style="color:#1d4ed8;">6th Grade Detective</strong></p>
+        <button class="sim-btn" style="background:#2563eb; color:#fff; margin-top:12px;" onclick="restartGame()">Play Again</button>
+      </div>
+    `
+  }
+];
+
+function runHans(knowsAnswer) {
+  const box = document.getElementById('hansResult');
+  if (knowsAnswer) {
+    box.innerText = "Result: Hans taps 7 times and stops right when the questioner relaxes their posture! (Correct!)";
+  } else {
+    box.innerText = "Result: Nobody knows the answer, so nobody relaxes at 7. Hans keeps tapping past 7! (Incorrect!)";
+  }
+}
+
+function renderStep() {
+  answeredCurrent = false;
+  const step = steps[currentStep];
+  document.getElementById('stageLabel').innerText = step.label;
+  document.getElementById('scoreLabel').innerText = `Detective Points: ${score} / 400`;
+  document.getElementById('progressBar').style.width = `${(currentStep / (steps.length - 1)) * 100}%`;
+
+  const container = document.getElementById('mainContent');
+  if (step.render) {
+    container.innerHTML = step.render();
+    return;
+  }
+
+  let optionsHTML = step.options.map((opt, idx) =>
+    `<button class="option-btn" id="opt-${idx}" onclick="checkAnswer(${idx})">${opt.text}</button>`
+  ).join('');
+
+  container.innerHTML = `
+    <span class="badge">${step.badge}</span>
+    <h2>${step.title}</h2>
+    <div class="lesson-box">${step.lesson}</div>
+    ${step.extraHTML || ''}
+    <div class="question-text">${step.question}</div>
+    <div class="options">${optionsHTML}</div>
+    <div class="feedback" id="feedbackBox"></div>
+    <div class="nav-footer">
+      <button class="next-btn" id="nextBtn" onclick="nextStep()">Continue &rarr;</button>
+    </div>
+  `;
+}
+
+function checkAnswer(idx) {
+  if (answeredCurrent) return;
+  answeredCurrent = true;
+  const step = steps[currentStep];
+  const chosen = step.options[idx];
+  const fb = document.getElementById('feedbackBox');
+
+  step.options.forEach((o, i) => {
+    const btn = document.getElementById(`opt-${i}`);
+    btn.disabled = true;
+    if (o.correct) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+
+  if (chosen.correct) {
+    score += 100;
+    document.getElementById('scoreLabel').innerText = `Detective Points: ${score} / 400`;
+    fb.className = 'feedback show ok';
+    fb.innerHTML = `<strong>+100 Detective Points!</strong> ${chosen.why}`;
+  } else {
+    fb.className = 'feedback show no';
+    fb.innerHTML = `<strong>Not quite!</strong> ${chosen.why}`;
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextStep() {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    renderStep();
+  }
+}
+
+function restartGame() {
+  currentStep = 0;
+  score = 0;
+  renderStep();
+}
+
+renderStep();
+</script>
+</body>
+</html>
